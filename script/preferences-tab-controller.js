@@ -57,7 +57,7 @@ class PreferencesTabController extends TabController {
 		this.preferencesSection.querySelector("div.personal>span.name>div>input.title").value = sessionOwner.name.title || "no title";
 		this.preferencesSection.querySelector("div.personal>span.name>div>input.surname").value = sessionOwner.name.family;
 		this.preferencesSection.querySelector("div.personal>span.name>div>input.forename").value = sessionOwner.name.given;
-		this.preferencesSection.querySelector("div.personal>span.address>div>input.postcode").value = sessionOwner.address.postcode;
+		this.preferencesSection.querySelector("div.personal>span.name>div>input.forename").value = sessionOwner.address.postcode;
 		this.preferencesSection.querySelector("div.personal>span.address>div>input.street").value = sessionOwner.address.street;
 		this.preferencesSection.querySelector("div.personal>span.address>div>input.city").value = sessionOwner.address.city;
 		this.preferencesSection.querySelector("div.personal>span.address>div>input.country").value = sessionOwner.address.country;
@@ -65,7 +65,16 @@ class PreferencesTabController extends TabController {
 
 
 	async processSubmitSessionOwner (sessionOwner) {
-		console.log(sessionOwner.avatar.description);	
+		sessionOwner.email = this.preferencesSection.querySelector("div.credentials>div>input.email").value.trim();
+		sessionOwner.group = this.preferencesSection.querySelector("div.credentials>div>select.group").value;
+		sessionOwner.name.title = this.preferencesSection.querySelector("div.personal>span.name>div>input.title").value.trim() || null;
+		sessionOwner.name.family = this.preferencesSection.querySelector("div.personal>span.name>div>input.surname").value.trim();
+		sessionOwner.name.given = this.preferencesSection.querySelector("div.personal>span.name>div>input.forename").value.trim();
+		sessionOwner.address.postcode = this.preferencesSection.querySelector("div.personal>span.name>div>input.forename").value.trim();
+		sessionOwner.address.street = this.preferencesSection.querySelector("div.personal>span.address>div>input.street").value.trim();
+		sessionOwner.address.city = this.preferencesSection.querySelector("div.personal>span.address>div>input.city").value.trim();
+		sessionOwner.address.country = this.preferencesSection.querySelector("div.personal>span.address>div>input.country").value.trim();
+		console.log(sessionOwner.address.country);
 	}
 
 
