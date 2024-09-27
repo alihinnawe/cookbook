@@ -1,0 +1,97 @@
+body {
+	main {
+		article.center {
+			section.recipe-editor {
+				div.data {
+					label {
+						width: 8em;
+					}
+					
+					span {
+						vertical-align: middle;
+					}
+
+					span.avatar>button>img {
+						height: 6em;
+						width: 6em;
+					}
+				}
+
+				div.description>textarea,div.instruction>textarea {
+					width: 100%;
+				}
+
+				div.ingredients {
+					margin-top: 1.5em;
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						input.number {
+							width: 6em;
+							text-align: right;
+						}
+
+						img.avatar {
+							height: 3em;
+							width: 3em;
+						}
+					}
+				}
+				
+				div.illustrations {
+					margin-top: 1.5em;
+
+					div.drop-target>button>img {
+						margin-top: 1em;
+						height: 5em;
+						width: 5em;
+					}
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						td.number {
+							text-align: right;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+

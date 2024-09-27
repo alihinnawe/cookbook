@@ -1,0 +1,59 @@
+body {
+	main {
+		article.center {
+			section.victuals-view {
+				div.victuals {
+					overflow: auto;
+					height: 30em;
+					width: 35em;
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+							position: sticky;
+							top: 0em;
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						td.number {
+							text-align: right;
+						}
+
+						img.avatar {
+							height: 3em;
+							width: 3em;
+						}
+					}
+				}
+			}
+
+			section.victual-editor  {
+				div.avatar>button>img {
+					height: 6em;
+					width: 6em;
+					vertical-align: middle;
+				}
+
+				label {
+					text-align: right;
+					width: 8em;
+				}
+			}
+		}
+	}
+}
+

@@ -1,0 +1,31 @@
+body span.selector {
+	img {
+		vertical-align: middle;
+	}
+
+	img.predecessor,img.successor {
+		height: 5em;
+		width: 5em;
+		margin: 0em 1em;
+		opacity: 0.5;
+	}
+
+	img.predecessor {
+		transform: perspective(8em) rotateY(-30deg);
+	}
+
+	img.successor {
+		transform: perspective(8em) rotateY(+30deg);
+	}
+
+	button.scroll>img {
+		height: 3em;
+		width: 3em;
+	}
+
+	button.selection>img {
+		height: 7em;
+		width: 7em;
+	}
+}
+

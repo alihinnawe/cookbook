@@ -1,0 +1,19 @@
+body {
+	main {
+		article.center {
+			section.authentication {
+				fieldset.credentials {
+					label {
+						width: 5em;
+						text-align: right;
+					}
+
+					input.email,input.password {
+						width: 20em;
+					}
+				}
+			}
+		}
+	}
+}
+

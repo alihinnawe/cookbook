@@ -1,0 +1,344 @@
+body {
+	main {
+		article.center {
+			section.preferences {
+				div.avatar,div.credentials,div.personal,fieldset.phones {
+					background-color: var(--corporate-division-color);
+
+					span.name,span.address {
+						vertical-align: middle;
+					}
+
+					label {
+						width: 6em;
+						text-align: right;
+					}
+
+					legend {
+						font-size: 75%;
+					}
+
+					button>img {
+						height: 6em;
+						width: 6em;
+					}
+
+					input.email,input.password {
+						width: 20em;
+					}
+
+					span.address input {
+						width: 15em;
+					}
+
+					input.phone {
+						margin-right: 0.5em;
+					}
+
+					button.add {
+						display: block;
+					}
+				}
+			}
+
+			/* victual-editor specific CSS rules */
+			section.victuals-view {
+				div.victuals {
+					overflow: auto;
+					height: 30em;
+					width: 35em;
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+							position: sticky;
+							top: 0em;
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						td.number {
+							text-align: right;
+						}
+
+						img.avatar {
+							height: 3em;
+							width: 3em;
+						}
+					}
+				}
+			}
+
+			section.victual-editor  {
+				img.avatar {
+					height: 6em;
+					width: 6em;
+					vertical-align: middle;
+				}
+
+				label {
+					text-align: right;
+					width: 8em;
+				}
+			}
+
+
+			/* recipes-view specific CSS rules */
+			section.recipes-view {
+				div.recipes {
+					overflow: auto;
+					height: 30em;
+					width: 42em;
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						td.number {
+							text-align: right;
+						}
+					}
+
+					img.avatar {
+						height: 3em;
+						width: 3em;
+					}
+				}
+			}
+
+			/* recipes-query specific CSS rules */
+			section.recipes-query {
+				div.criteria {
+					label {
+						text-align: right;
+					}
+
+					span.left label {
+						width: 7em;
+					}
+
+					span.right label {
+						width: 9em;
+					}
+
+					select {
+						width: 12.35em;
+					}
+
+					select.diets {
+						vertical-align: top;
+					}
+				}
+			}
+
+
+			/* recipes-editor specific CSS rules */
+			section.recipe-editor>div {
+				margin-bottom: 0.5em;
+			}
+
+			section.recipe-editor {
+				div.main span {
+					vertical-align: middle;
+				}
+
+				div.main label {
+					width: 8em;
+				}
+
+				div.main img.avatar {
+					height: 6em;
+					width: 6em;
+				}
+
+				div.description>textarea,div.instruction>textarea {
+					width: 100%;
+				}
+
+				div.ingredients {
+					margin-top: 1.5em;
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						input.number {
+							width: 6em;
+							text-align: right;
+						}
+
+						img.avatar {
+							height: 3em;
+							width: 3em;
+						}
+					}
+				}
+				
+				div.illustrations {
+					margin-top: 1.5em;
+
+					img.drop-target {
+						margin-top: 1em;
+						height: 5em;
+						width: 5em;
+					}
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						td.number {
+							text-align: right;
+						}
+					}
+				}
+			}
+
+
+			/* recipes-view specific CSS rules */
+			section.recipe-view {
+				div.main span {
+					vertical-align: middle;
+				}
+
+				div.main label {
+					width: 8em;
+				}
+
+				div.main img.avatar {
+					height: 6em;
+					width: 6em;
+				}
+
+				div.description>textarea,div.instruction>textarea {
+					width: 100%;
+				}
+
+				div.ingredients {
+					margin-top: 1.5em;
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						td.number {
+							text-align: right;
+						}
+
+						img.avatar {
+							height: 3em;
+							width: 3em;
+						}
+					}
+				}
+
+				div.illustrations {
+					margin-top: 1.5em;
+
+					table {
+						thead>tr {
+							border-bottom-style: solid;
+							border-bottom-width: 1px;
+						}
+
+						th:not(:first-of-type),td:not(:first-of-type) {
+							border-left-style: solid;
+							border-left-width: 1px;
+						}
+
+						th {
+							padding: 0.5em;
+							background: var(--corporate-light-red);
+						}
+
+						td {
+							padding: 0em 0.5em;
+						}
+
+						td.number {
+							text-align: right;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
