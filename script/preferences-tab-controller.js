@@ -38,11 +38,10 @@ class PreferencesTabController extends TabController {
 		this.center.append(template.content.firstElementChild.cloneNode(true));
 
 		// register basic event listeners
-		//console.log(this.avatarButton,this.addButton,this.submitButton);
 		const sessionOwner = this.sharedProperties["session-owner"];
 		this.avatarButton.addEventListener("click", event => this.avatarChooser.click());
 		this.avatarChooser.addEventListener("change", event => this.processSubmitSessionOwnerAvatar(sessionOwner, event.target.files[0]));
-		this.addButton.addEventListener("click", event => this.processAddPhoneInput());
+		this.addButton.addEventListener("click", event => this.processAddPhoneInput(sessionOwner));
 		this.submitButton.addEventListener("click", event => this.processSubmitSessionOwner(sessionOwner));
 	}
 
@@ -50,13 +49,18 @@ class PreferencesTabController extends TabController {
 	
 		
 	}
-	async processAddPhoneInput () {
-		const sessionOwner = this.sharedProperties["session-owner"];
-		const AvatarSelection = this.preferencesSection.querySelector("div.avatar>button>img");
-		console.log("image",this.preferencesSection.querySelector("div.avatar>button>img").currentSrc);
-		AvatarSelection.src = this.sharedProperties["service-origin"] + "/services/documents/" + sessionOwner.avatar.identity;
-		console.log("image",this.preferencesSection.querySelector("div.avatar>button>img").currentSrc);
-
+	async processAddPhoneInput (sessionOwner) {
+		const email = this.preferencesSection.querySelector("div.credentials>div>input.email");
+		email.value = sessionOwner.email;
+		this.preferencesSection.querySelector("div.credentials>div>input.email").value = sessionOwner.email;
+		this.preferencesSection.querySelector("div.credentials>div>select.group").value = sessionOwner.group;
+		this.preferencesSection.querySelector("div.personal>span.name>div>input.title").value = sessionOwner.name.title || "no title";
+		this.preferencesSection.querySelector("div.personal>span.name>div>input.surname").value = sessionOwner.name.family;
+		this.preferencesSection.querySelector("div.personal>span.name>div>input.forename").value = sessionOwner.name.given;
+		this.preferencesSection.querySelector("div.personal>span.address>div>input.postcode").value = sessionOwner.address.postcode;
+		this.preferencesSection.querySelector("div.personal>span.address>div>input.street").value = sessionOwner.address.street;
+		this.preferencesSection.querySelector("div.personal>span.address>div>input.city").value = sessionOwner.address.city;
+		this.preferencesSection.querySelector("div.personal>span.address>div>input.country").value = sessionOwner.address.country;
 	}
 
 
