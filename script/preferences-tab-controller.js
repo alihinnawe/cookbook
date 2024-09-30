@@ -109,14 +109,8 @@ class PreferencesTabController extends TabController {
 				const phone = phoneInput.value.trim() || null;
 				if (phone) sessionOwnerClone.phones.push(phone);
 			}; 
-
-			const body = JSON.stringify(sessionOwnerClone);
-			const resource = this.sharedProperties["service-origin"] + "/services/people";
-			const headers = { "Accept": "text/plain", "Content-Type": "application/json" };
-			if (password) headers["X-Set-Password"] = password;
-			const response = await fetch(resource, { method: "POST", headers: headers, body: body, credentials: "include" });
-			console.log("response",response);
-			if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+			
+			await this.#invokeInsertOrUpdatePerson(sessionOwnerClone, password);
 
 			if (sessionOwnerClone.email != sessionOwner.email || password) {
 				document.querySelector("header>nav.tabs>button.authentication").click();
@@ -135,19 +129,38 @@ class PreferencesTabController extends TabController {
 	}
 
 
-	async processSubmitSessionOwnerAvatar (sessionOwner,avatarFile) {
-		//console.log("avatarFilessssssss",avatarFile.name);
-		this.messageOutput.value = "";
-		//console.log(sessionOwner, avatarFile);
-		//console.log("session owner is",sessionOwner);
-		const resource = this.sharedProperties["service-origin"] + "/services/documents";
-		const headers = { "Accept": "text/plain", "Content-Type": avatarFile.type};
-		const response = await fetch(resource, { method: "POST" , headers: headers, body: avatarFile, credentials: "include" });
+	async processSubmitSessionOwnerAvatar (sessionOwner, avatarFile) {
+		try {
+			sessionOwner.avatar.identity = await this.#invokeInsertOrUpdateDocument(avatarFile);
+			this.avatarViewer.src = this.sharedProperties["service-origin"] + "/services/documents/" + sessionOwner.avatar.identity;
+
+			this.messageOutput.value = "ok.";
+		} catch (error) {
+			this.displayPersonDetails(sessionOwner);
+			this.messageOutput.value = error.message;
+			console.error(error);
+		}		
+	}
+
+	async #invokeInsertOrUpdatePerson (sessionOwnerClone,password) {
+		const body = JSON.stringify(sessionOwnerClone);
+		const resource = this.sharedProperties["service-origin"] + "/services/people";
+		const headers = { "Accept": "text/plain", "Content-Type": "application/json" };
+		if (password) headers["X-Set-Password"] = password;
+		const response = await fetch(resource, { method: "POST", headers: headers, body: body, credentials: "include" });
+		console.log("response",response);
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
-		sessionOwner.avatar.identity = parseInt(await response.text());
-		this.preferencesSection.querySelector("div.avatar>button>img").src = this.sharedProperties["service-origin"] + "/services/documents/" + sessionOwner.avatar.identity;
-		this.messageOutput.value = "ok.";
-		
+
+		return window.parseInt(await response.text());
+	}
+
+	async #invokeInsertOrUpdateDocument (file) {
+		const resource = this.sharedProperties["service-origin"] + "/services/documents";
+		const headers = { "Accept": "text/plain", "Content-Type": file.type, "X-Content-Description": file.name };
+		const response = await fetch(resource, { method: "POST" , headers: headers, body: file, credentials: "include" });
+		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+
+		return window.parseInt(await response.text());
 	}
 }
 
