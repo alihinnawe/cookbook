@@ -56,6 +56,9 @@ class PreferencesTabController extends TabController {
 		this.avatarChooser.addEventListener("change", event => this.processSubmitSessionOwnerAvatar(sessionOwner, event.target.files[0]));
 		this.addButton.addEventListener("click", event => this.processAddPhoneInput());
 		this.submitButton.addEventListener("click", event => this.processSubmitSessionOwner(sessionOwner));
+		this.avatarViewer.addEventListener("dragover", event => this.#avatarAnrufenDrag(event.dataTransfer));
+		this.avatarViewer.addEventListener("drop", event => this.processSubmitSessionOwnerAvatar(sessionOwner, event.dataTransfer.files[0]));
+
 		this.displayPersonDetails (sessionOwner);
 	}	
 
@@ -161,6 +164,11 @@ class PreferencesTabController extends TabController {
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
 
 		return window.parseInt(await response.text());
+	}
+	
+	async #avatarAnrufenDrag(dataTransferObject){
+		dataTransferObject.dropEffect = "copy";
+		console.log(dataTransferObject);
 	}
 }
 
