@@ -41,7 +41,8 @@ class VictualEditorTabController extends TabController {
 	}
 	
 	async displayEditableVictuals(sessionOwner){
-		const victuals = await this.#invokeQueryEditableVictuals();
+		const victuals = await this.#invokeQueryEditableVictuals(sessionOwner);
+		
 		const template = document.querySelector("head>template.victuals-view-row");
 		for (const victual of victuals) {
 			const tableRow = template.content.firstElementChild.cloneNode(true);
@@ -52,10 +53,18 @@ class VictualEditorTabController extends TabController {
 	}
 	
 	//
-	async #invokeQueryEditableVictuals(){
+	async #invokeQueryEditableVictuals(sessionOwner){
 			
+			const resource = sessionOwner.group === "ADMIN"
+			? this.sharedProperties["service-origin"] + "/services/victuals"
+			: this.sharedProperties["service-origin"] + "/services/people/" + sessionOwner.identity + "/victuals";
+		const headers = { "Accept": "application/json" };
+		const response = await fetch(resource, { method: "GET", headers: headers, credentials: "include" });
+		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+		const victuals = await response.json();
+		console.log(victuals);
 		// redefine center content
-		return [ [],[],[]];
+		return victuals;
 	}
 }
 
