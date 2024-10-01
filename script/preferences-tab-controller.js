@@ -26,16 +26,16 @@ class PreferencesTabController extends TabController {
 	get addButton () { return this.center.querySelector("fieldset.phones>button.add"); }
 	get submitButton () { return this.center.querySelector("div.control>button.submit"); }
 	get phonesSpan() { return this.preferencesSection.querySelector("fieldset.phones>span"); }
-	get emailInput() { return this.preferencesSection.querySelector("div.credentials>div>input.email"); } 
-	get passwordInput() { return this.preferencesSection.querySelector("div.credentials>div>input.password"); } 
-	get groupSelector() { return this.preferencesSection.querySelector("div.credentials>div>select.group"); }
-	get titleInput() { return this.preferencesSection.querySelector("div.personal>span.name>div>input.title"); }
-	get surnameInput() { return this.preferencesSection.querySelector("div.personal>span.name>div>input.surname"); }
-	get forenameInput() { return this.preferencesSection.querySelector("div.personal>span.name>div>input.forename"); }
-	get postcodeInput () { return this.preferencesSection.querySelector("div.personal>span.address>div>input.postcode"); }
-	get streetInput () { return this.preferencesSection.querySelector("div.personal>span.address>div>input.street"); }
-	get cityInput () { return this.preferencesSection.querySelector("div.personal>span.address>div>input.city"); }
-	get countryInput () { return this.preferencesSection.querySelector("div.personal>span.address>div>input.country"); }
+	get emailInput() { return this.preferencesSection.querySelector("div.credentials>div.email>input"); } 
+	get passwordInput() { return this.preferencesSection.querySelector("div.credentials>div.password>input"); } 
+	get groupSelector() { return this.preferencesSection.querySelector("div.credentials>div.group>select"); }
+	get titleInput() { return this.preferencesSection.querySelector("div.personal>span.name>div.title>input"); }
+	get surnameInput() { return this.preferencesSection.querySelector("div.personal>span.name>div.surname>input"); }
+	get forenameInput() { return this.preferencesSection.querySelector("div.personal>span.name>div.forename>input"); }
+	get postcodeInput () { return this.preferencesSection.querySelector("div.personal>span.address>div.postcode>input"); }
+	get streetInput () { return this.preferencesSection.querySelector("div.personal>span.address>div.street>input"); }
+	get cityInput () { return this.preferencesSection.querySelector("div.personal>span.address>div.city>input"); }
+	get countryInput () { return this.preferencesSection.querySelector("div.personal>span.address>div.country>input"); }
 
 
 	/**
@@ -51,7 +51,7 @@ class PreferencesTabController extends TabController {
 
 		// register basic event listeners
 		const sessionOwner = this.sharedProperties["session-owner"];
-		
+		console.log("sessionOwner",sessionOwner);
 		this.avatarButton.addEventListener("click", event => this.avatarChooser.click());
 		this.avatarChooser.addEventListener("change", event => this.processSubmitSessionOwnerAvatar(sessionOwner, event.target.files[0]));
 		this.addButton.addEventListener("click", event => this.processAddPhoneInput());
@@ -133,7 +133,14 @@ class PreferencesTabController extends TabController {
 
 
 	async processSubmitSessionOwnerAvatar (sessionOwner, avatarFile) {
+		
+		
 		try {
+			
+			if (!avatarFile.type.startsWith("image/")) {
+            throw new Error("Invalid file type. Only image files are allowed.");
+			}
+
 			sessionOwner.avatar.identity = await this.#invokeInsertOrUpdateDocument(avatarFile);
 			this.avatarViewer.src = this.sharedProperties["service-origin"] + "/services/documents/" + sessionOwner.avatar.identity;
 
@@ -151,7 +158,7 @@ class PreferencesTabController extends TabController {
 		const headers = { "Accept": "text/plain", "Content-Type": "application/json" };
 		if (password) headers["X-Set-Password"] = password;
 		const response = await fetch(resource, { method: "POST", headers: headers, body: body, credentials: "include" });
-		console.log("response",response);
+		//console.log("response",response);
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
 
 		return window.parseInt(await response.text());
@@ -167,8 +174,8 @@ class PreferencesTabController extends TabController {
 	}
 	
 	async #avatarAnrufenDrag(dataTransferObject){
-		dataTransferObject.dropEffect = "copy";
-		console.log(dataTransferObject);
+
+			dataTransferObject.dropEffect = "copy";
 	}
 }
 

@@ -44,14 +44,14 @@ body {
 							padding: 0em 0.5em;
 						}
 
+						td.avatar>img {
+							height: 3em;
+							width: 3em;
+						}
+
 						input.number {
 							width: 6em;
 							text-align: right;
-						}
-
-						img.avatar {
-							height: 3em;
-							width: 3em;
 						}
 					}
 				}

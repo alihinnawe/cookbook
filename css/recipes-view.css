@@ -30,11 +30,11 @@ body {
 						td.number {
 							text-align: right;
 						}
-					}
 
-					img.avatar {
-						height: 3em;
-						width: 3em;
+						td.access>button>img {
+							height: 3em;
+							width: 3em;
+						}
 					}
 				}
 			}

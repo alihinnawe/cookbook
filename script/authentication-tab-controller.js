@@ -9,7 +9,7 @@ import xhr from "../../../tool/xhr.js";
 // web-server's origin!
 const serviceProtocol = document.location.protocol;
 const serviceHostname = document.location.hostname;
-const servicePort = document.location.port;
+const servicePort = 8010; // document.location.port;
 const serviceOrigin = serviceProtocol + "//" + serviceHostname + ":" + servicePort;
 
 
@@ -35,8 +35,8 @@ class AuthenticationTabController extends TabController {
 	// HTML element getter operations
 	get authenticationSection () { return this.center.querySelector("section.authentication"); }
 	get authenticationButton () { return this.authenticationSection.querySelector("div.control>button.authenticate"); }
-	get emailInput () { return this.authenticationSection.querySelector("input.email"); }
-	get passwordInput () { return this.authenticationSection.querySelector("input.password"); }
+	get emailInput () { return this.authenticationSection.querySelector("div.email>input"); }
+	get passwordInput () { return this.authenticationSection.querySelector("div.password>input"); }
 
 
 	/**

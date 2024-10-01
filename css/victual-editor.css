@@ -33,7 +33,7 @@ body {
 							text-align: right;
 						}
 
-						img.avatar {
+						td.access>button>img {
 							height: 3em;
 							width: 3em;
 						}

@@ -2,10 +2,10 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<meta name="author" content="Ali Hinnawe" />
-		<meta name="dcterms.rightsHolder" content="Ali Hinnawe" />
+		<meta name="author" content="Sascha Baumeister" />
+		<meta name="dcterms.rightsHolder" content="Sascha Baumeister" />
 		<meta name="dcterms.rights" content="all rights reserved" />
-		<meta name="dcterms.dateCopyrighted" content="2024" />
+		<meta name="dcterms.dateCopyrighted" content="2023" />
 
 		<title>Kochbuch-App</title>
 		<link rel="icon" type="image/png" href="image/cookbook.png" />
@@ -18,7 +18,7 @@
 		<link rel="stylesheet" href="css/recipe-view.css" />
 		<script type="module" async="true" src="script/authentication-tab-controller.js"></script>
 		<script type="module" async="true" src="script/preferences-tab-controller.js"></script>
-		<!-- script type="module" async="true" src="script/victual-editor-tab-controller.js"></script -->
+		<script type="module" async="true" src="script/victual-editor-tab-controller.js"></script>
 		<!-- script type="module" async="true" src="script/recipe-editor-tab-controller.js"></script -->
 		<!-- script type="module" async="true" src="script/recipe-view-tab-controller.js"></script -->
 
@@ -26,13 +26,13 @@
 			<section class="authentication">
 				<fieldset class="credentials">
 					<legend>Authentifizierung</legend>
-					<div>
+					<div class="email">
 						<label>Email</label>
-						<input type="email" class="email" />
+						<input type="email" />
 					</div>
-					<div>
+					<div class="password">
 						<label>Passwort</label>
-						<input type="password" class="password" />
+						<input type="password" />
 					</div>
 					<div class="control">
 						<button type="button" class="authenticate">login</button>
@@ -51,17 +51,17 @@
 					<input type="file" class="hidden" accept="image/*" />
 				</div>
 				<div class="credentials">
-					<div>
+					<div class="email">
 						<label>Email</label>
-						<input type="email" class="email" />
+						<input type="email" />
 					</div>
-					<div>
+					<div class="password">
 						<label>Passwort</label>
-						<input type="password" class="password" />
+						<input type="password" />
 					</div>
-					<div>
+					<div class="group">
 						<label>Gruppe</label>
-						<select class="group" autocomplete="off">
+						<select autocomplete="off">
 							<option value="USER">Benutzer</option>
 							<option value="ADMIN">Administrator</option>
 						</select>
@@ -69,41 +69,41 @@
 				</div>
 				<div class="personal">
 					<span class="name">
-						<div>
+						<div class="title">
 							<label>Titel</label>
-							<input type="text" class="title" />
+							<input type="text" />
 						</div>
-						<div>
+						<div class="surname">
 							<label>Nachname</label>
-							<input type="text" class="surname" />
+							<input type="text" />
 						</div>
-						<div>
+						<div class="forename">
 							<label>Vorname</label>
-							<input type="text" class="forename" />
+							<input type="text" />
 						</div>
 					</span>
 					<span class="address">
-						<div>
+						<div class="postcode">
 							<label>PLZ</label>
-							<input type="text" class="postcode" />
+							<input type="text" />
 						</div>
-						<div>
+						<div class="street">
 							<label>Straße</label>
-							<input type="text" class="street" />
+							<input type="text" />
 						</div>
-						<div>
+						<div class="city">
 							<label>Ort</label>
-							<input type="text" class="city" />
+							<input type="text" />
 						</div>
-						<div>
+						<div class="country">
 							<label>Staat</label>
-							<input type="text" class="country" />
+							<input type="text" />
 						</div>
 					</span>
 				</div>
 				<fieldset class="phones">
 					<legend>Telefon</legend>
-					<span class="phones"></span>
+					<span></span>
 					<button type="button" class="add">hinzufügen</button>
 				</fieldset>
 				<div class="control">
@@ -133,9 +133,9 @@
 
 		<template class="victuals-view-row">
 			<tr>
-				<td>
-					<button type="button" class="access">
-						<img class="avatar" />
+				<td class="access">
+					<button type="button">
+						<img />
 					</button>
 				</td>
 				<td class="alias text"></td>
@@ -267,11 +267,7 @@
 
 		<template class="recipes-view-row">
 			<tr>
-				<td>
-					<button type="button" class="access">
-						<img class="avatar" />
-					</button>
-				</td>
+				<td class="access"><button type="button"><img /></button></td>
 				<td class="title text"></td>
 				<td class="diet text"></td>
 				<td class="category text"></td>
@@ -344,9 +340,7 @@
 
 		<template class="recipe-view-ingredient-row">
 			<tr>
-				<td>
-					<img class="avatar" />
-				</td>
+				<td class="avatar"><img /></td>
 				<td class="alias text"></td>
 				<td class="diet text"></td>
 				<td class="amount number"></td>
@@ -356,9 +350,7 @@
 
 		<template class="recipe-view-illustration-row">
 			<tr>
-				<td class="text">
-					<a class="content" target="_blank"></a>
-				</td>
+				<td class="content text"><a target="_blank"></a></td>
 				<td class="size number"></td>
 			</tr>
 		</template>
@@ -450,20 +442,12 @@
 
 		<template class="recipe-editor-ingredient-row">
 			<tr>
-				<td>
-					<img class="avatar" />
-				</td>
-				<td>
-					<select class="alias" autocomplete="off"></select>
-				</td>
-				<td>
-					<output class="diet"></output>
-				</td>
-				<td>
-					<input type="number" class="amount number" value="1" step="0.1" min="0" />
-				</td>
-				<td>
-					<select class="unit" autocomplete="off"  />
+				<td class="avatar"><img /></td>
+				<td class="alias"><select autocomplete="off"></select></td>
+				<td class="diet"><output></output></td>
+				<td class="amount"><input type="number" value="1" step="0.1" min="0" /></td>
+				<td class="unit">
+					<select autocomplete="off" />
 						<option value="LITRE">Liter</option>
 						<option value="GRAM">Gramm</option>
 						<option value="TEASPOON">Teelöffel</option>
@@ -476,7 +460,7 @@
 						<option value="PIECE">Stück</option>
 					</select>
 				</td>
-				<td>
+				<td class="action">
 					<button type="button" class="submit">speichern</button>
 					<button type="button" class="remove">entfernen</button>
 				</td>
@@ -485,11 +469,9 @@
 
 		<template class="recipe-editor-illustration-row">
 			<tr>
-				<td class="text">
-					<a class="content" target="_blank"></a>
-				</td>
+				<td class="content text"><a target="_blank"></a></td>
 				<td class="size number"></td>
-				<td>
+				<td class="action">
 					<button type="button" class="remove">entfernen</button>
 				</td>
 			</tr>
