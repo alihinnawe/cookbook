@@ -53,7 +53,6 @@ class VictualEditorTabController extends TabController {
 		const victuals = await this.#invokeQueryEditableVictuals(sessionOwner);
 		
 		const template = document.querySelector("head>template.victuals-view-row");
-	    console.log("diet object",DIET)
 		// Loop over each victual and create a row for it
 		for (const victual of victuals) {
 
@@ -97,12 +96,16 @@ class VictualEditorTabController extends TabController {
 	}
 
 	async #processDisplayVictualEditor(victual = {}) {
+		//console.log("victual",victual);
 		this.viewSection.classList.add("hidden");
 		const template = document.querySelector("head>template.victual-editor");
-		while (this.center.lastElementChild) this.center.lastElementChild.remove();
-		this.center.append(template.content.firstElementChild.cloneNode(true));
-
-
+		const tableRow = template.content.firstElementChild.cloneNode(true);
+		this.center.append(tableRow);
+		const avatarElement = tableRow.querySelector("div.data>div.avatar>button>img");
+		avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
+		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
+		tableRow.querySelector("div.data>div.description>textarea").value = victual.description;
 	}
 
 
