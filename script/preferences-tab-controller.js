@@ -48,10 +48,17 @@ class PreferencesTabController extends TabController {
 		const template = document.querySelector("head>template.preferences");
 		while (this.center.lastElementChild) this.center.lastElementChild.remove();
 		this.center.append(template.content.firstElementChild.cloneNode(true));
-
+		
+		const newButton = document.createElement("button");
+		newButton.type = "button";
+		newButton.innerText = "neu";
+		newButton.classList.add("create");
+		
+		
 		// register basic event listeners
 		const sessionOwner = this.sharedProperties["session-owner"];
 		console.log("sessionOwner",sessionOwner);
+		
 		this.avatarButton.addEventListener("click", event => this.avatarChooser.click());
 		this.avatarChooser.addEventListener("change", event => this.processSubmitSessionOwnerAvatar(sessionOwner, event.target.files[0]));
 		this.addButton.addEventListener("click", event => this.processAddPhoneInput());
