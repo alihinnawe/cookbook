@@ -6,7 +6,6 @@ import {DIET} from "./enums.js"
  */
 class VictualEditorTabController extends TabController {
 
-
 	/**
 	 * Initializes a new instance.
 	 */
@@ -15,7 +14,6 @@ class VictualEditorTabController extends TabController {
 
 		// register controller event listeners 
 		this.addEventListener("activated", event => this.processActivated());
-
 	}
 
 
@@ -23,8 +21,8 @@ class VictualEditorTabController extends TabController {
 	get viewSection () { return this.center.querySelector("section.victuals-view"); }
 	get victualsTableBody () { return this.viewSection.querySelector("div.victuals>table>tbody"); }
 	get controlDivision () { return this.viewSection.querySelector("div.control"); }
-
-
+	get avatarButton () { return this.viewSection.querySelector("div.data>div.avatar>button"); }
+	get avatarViewer () { return this.avatarButton.querySelector("img"); }
 	/**
 	 * Handles that activity has changed from false to true.
 	 */
@@ -48,6 +46,7 @@ class VictualEditorTabController extends TabController {
 		this.displayEditableVictuals(sessionOwner);
 
 	}
+
 	
 	async displayEditableVictuals(sessionOwner) {
 		const victuals = await this.#invokeQueryEditableVictuals(sessionOwner);
@@ -77,7 +76,6 @@ class VictualEditorTabController extends TabController {
 
 			button.addEventListener("click", event => this.#processDisplayVictualEditor(victual));
 			
-
 		}
 	}
 	
@@ -95,6 +93,7 @@ class VictualEditorTabController extends TabController {
 		return victuals;
 	}
 
+
 	async #processDisplayVictualEditor(victual = {}) {
 		//console.log("victual",victual);
 		this.viewSection.classList.add("hidden");
@@ -106,10 +105,57 @@ class VictualEditorTabController extends TabController {
 		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
 		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
 		tableRow.querySelector("div.data>div.description>textarea").value = victual.description;
+		avatarElement.addEventListener("dragover", event => this.#avatarAnrufenDrag(event.dataTransfer));
+		avatarElement.addEventListener("drop", event => this.processSubmitVictualAvatar(victual, event.dataTransfer.files[0]));
+	
 	}
 
 
 
+	async processSubmitVictualAvatar (victual, avatarFile) {		
+		try {
+			if (!avatarFile.type.startsWith("image/")) {
+            	throw new Error("Invalid file type. Only image files are allowed.");
+			}
+			if (!victual.avatar) victual.avatar = {identity:1};
+			victual.avatar.identity = await this.#invokeInsertOrUpdateDocument(avatarFile);
+			this.avatarViewer.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+
+			this.messageOutput.value = "ok.";
+		} catch (error) {
+			this.messageOutput.value = error.message;
+			console.error(error);
+		}
+	}
+	
+	
+	async #invokeInsertOrUpdateVictual (victual) {
+		const body = JSON.stringify(victual);
+		const resource = this.sharedProperties["service-origin"] + "/services/victuals";
+		const headers = { "Accept": "text/plain", "Content-Type": "application/json" };
+		if (password) headers["X-Set-Password"] = password;
+		const response = await fetch(resource, { method: "POST", headers: headers, body: body, credentials: "include" });
+		//console.log("response",response);
+		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+
+		return window.parseInt(await response.text());
+	}
+
+
+	async #invokeInsertOrUpdateDocument (file) {
+		const resource = this.sharedProperties["service-origin"] + "/services/documents";
+		const headers = { "Accept": "text/plain", "Content-Type": file.type, "X-Content-Description": file.name };
+		const response = await fetch(resource, { method: "POST" , headers: headers, body: file, credentials: "include" });
+		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+
+		return window.parseInt(await response.text());
+	}
+	
+
+	async #avatarAnrufenDrag(dataTransferObject){
+		dataTransferObject.dropEffect = "copy";
+		console.log("copiedddd");
+	}
 }
 
 
