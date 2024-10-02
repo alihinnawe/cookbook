@@ -1,5 +1,5 @@
 import TabController from "../../../tool/tab-controller.js";
-
+import {DIET} from "./enums.js"
 
 /**
  * Skeleton for tab controller type.
@@ -42,7 +42,7 @@ class VictualEditorTabController extends TabController {
 		const victuals = await this.#invokeQueryEditableVictuals(sessionOwner);
 		
 		const template = document.querySelector("head>template.victuals-view-row");
-	
+	    console.log("diet object",DIET)
 		// Loop over each victual and create a row for it
 		for (const victual of victuals) {
 			const tableRow = template.content.firstElementChild.cloneNode(true);
@@ -54,13 +54,18 @@ class VictualEditorTabController extends TabController {
 			const dateAlias = tableRow.querySelector("td.modified.number");
 	
 			avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
-			rowAlias.textContent = victual.alias;
-			rowDiet.textContent = victual.diet;
+			rowAlias.textContent = victual.alias || "";
+			rowDiet.textContent = DIET[victual.diet] || "";
 	
 			const timestamp = victual.modified;
-			const date = new Date(timestamp);
-			const date1 = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-			dateAlias.textContent = date1;
+			const event = new Date(timestamp);
+			const options = {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			};
+			dateAlias.textContent = event.toLocaleDateString('en', options);
 	
 			this.victualsTableBody.append(tableRow);
 		}
@@ -77,7 +82,6 @@ class VictualEditorTabController extends TabController {
 		const response = await fetch(resource, { method: "GET", headers: headers, credentials: "include" });
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
 		const victuals = await response.json();
-		//console.log(victuals);
 		// redefine center content
 		return victuals;
 	}
