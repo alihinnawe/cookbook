@@ -21,7 +21,6 @@ class VictualEditorTabController extends TabController {
 	// HTML element getter operations
 	get viewSection () { return this.center.querySelector("section.victuals-view"); }
 	get victualsTableBody () { return this.viewSection.querySelector("div.victuals>table>tbody"); }
-
 	/**
 	 * Handles that activity has changed from false to true.
 	 */
@@ -35,22 +34,38 @@ class VictualEditorTabController extends TabController {
 
 		// register basic event listeners
 		const sessionOwner = this.sharedProperties["session-owner"] ;
-		console.log("x",this.victualsTableBody);
 		this.displayEditableVictuals(sessionOwner);
-		console.log("five");
+
 	}
 	
-	async displayEditableVictuals(sessionOwner){
+	async displayEditableVictuals(sessionOwner) {
 		const victuals = await this.#invokeQueryEditableVictuals(sessionOwner);
 		
 		const template = document.querySelector("head>template.victuals-view-row");
+	
+		// Loop over each victual and create a row for it
 		for (const victual of victuals) {
 			const tableRow = template.content.firstElementChild.cloneNode(true);
+			
+			// Find elements in the current cloned row
+			const avatarElement = tableRow.querySelector("td.access>button>img");
+			const rowAlias = tableRow.querySelector("td.alias.text");
+			const rowDiet = tableRow.querySelector("td.diet");
+			const dateAlias = tableRow.querySelector("td.modified.number");
+	
+			avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+			rowAlias.textContent = victual.alias;
+			rowDiet.textContent = victual.diet;
+	
+			const timestamp = victual.modified;
+			const date = new Date(timestamp);
+			const date1 = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+			dateAlias.textContent = date1;
+	
 			this.victualsTableBody.append(tableRow);
-			
-			
 		}
 	}
+	
 	
 	//
 	async #invokeQueryEditableVictuals(sessionOwner){
@@ -62,7 +77,7 @@ class VictualEditorTabController extends TabController {
 		const response = await fetch(resource, { method: "GET", headers: headers, credentials: "include" });
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
 		const victuals = await response.json();
-		console.log(victuals);
+		//console.log(victuals);
 		// redefine center content
 		return victuals;
 	}
