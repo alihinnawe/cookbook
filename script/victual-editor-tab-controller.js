@@ -65,8 +65,8 @@ class VictualEditorTabController extends TabController {
 			month: 'long',
 			day: 'numeric',
 			};
-			dateAlias.textContent = event.toLocaleDateString('en', options);
-	
+			dateAlias.textContent = event.toLocaleDateString();
+			
 			this.victualsTableBody.append(tableRow);
 		}
 	}
@@ -85,6 +85,19 @@ class VictualEditorTabController extends TabController {
 		// redefine center content
 		return victuals;
 	}
+
+	async #editVictuals(sessionOwner){
+			
+		const resource = sessionOwner.group === "ADMIN"
+		? this.sharedProperties["service-origin"] + "/services/victuals"
+		: this.sharedProperties["service-origin"] + "/services/people/" + sessionOwner.identity + "/victuals";
+	const headers = { "Accept": "application/json" };
+	const response = await fetch(resource, { method: "GET", headers: headers, credentials: "include" });
+	if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+	const victuals = await response.json();
+	// redefine center content
+	return victuals;
+}
 }
 
 
