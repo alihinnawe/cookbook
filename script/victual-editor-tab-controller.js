@@ -43,6 +43,7 @@ class VictualEditorTabController extends TabController {
 		newButton.innerText = "neu";
 		newButton.classList.add("create");
 		newButton.addEventListener("click", event => this.#processDisplayVictualEditor());
+
 		this.controlDivision.append(newButton);
 
 		// register basic event listeners
@@ -77,6 +78,7 @@ class VictualEditorTabController extends TabController {
 			this.victualsTableBody.append(tableRow);
 
 			button.addEventListener("click", event => this.#processDisplayVictualEditor(victual));
+	
 			console.log("save the updated victual to the database");
 			
 
@@ -98,31 +100,39 @@ class VictualEditorTabController extends TabController {
 		return victuals;
 	}
 
-
 	async #processDisplayVictualEditor(victual = {}) {
-		// should i create a victual clone here or in the processSaveVictualEditor?
-
+		// Clear out the existing editor, if any, to avoid appending multiple times
+		const existingEditor = this.viewSectionVictualEditor;
+		if (existingEditor) {
+			existingEditor.remove();  // Remove existing editor before adding new one
+		}
+	
+		// Hide the view section and prepare to display the editor
 		this.viewSection.classList.add("hidden");
+	
+		// Insert new editor section
 		const template = document.querySelector("head>template.victual-editor");
 		const tableRow = template.content.firstElementChild.cloneNode(true);
 		this.center.append(tableRow);
 	
+		// Setup event listeners and fill data in the editor
 		const avatarElement = tableRow.querySelector("div.data>div.avatar>button>img");
 		avatarElement.addEventListener("dragover", event => this.#avatarAnrufenDrag(event.dataTransfer));
 		avatarElement.addEventListener("drop", event => this.processSubmitVictualAvatar(victual, event.dataTransfer.files[0]));
 	
-		// Set the image src after the avatar identity is available
+		tableRow.querySelector("div.control>button.cancel").addEventListener("click", event => this.#processReturnToVictual());
+	
 		if (victual.avatar && victual.avatar.identity) {
 			avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
 		}
 	
-		// Populate other fields
 		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
 		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
 		tableRow.querySelector("div.data>div.description>textarea").value = victual.description;
+	
 		tableRow.querySelector("div.control>button.submit").addEventListener("click", event => this.#processSaveVictualEditor(victual));
-		//tableRow.querySelector("div.data>div.avatar>button").src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
-		console.log("success");
+	
+		console.log("Editor displayed successfully.");
 	}
 	
 
@@ -170,6 +180,9 @@ class VictualEditorTabController extends TabController {
 				victual[key] = victualClone[key];
 			victual.version +=1;	
 
+			// Return to the victuals list after saving
+			this.#processReturnToVictual();
+
 			this.messageOutput.value = "ok";
 		} catch (error) {
 			//this.displayPersonDetails(sessionOwner);
@@ -207,9 +220,20 @@ class VictualEditorTabController extends TabController {
 		dataTransferObject.dropEffect = "copy";
 		console.log("copiedddd");
 	}
+
+	async #processReturnToVictual() {
+		// Show the victuals view section
+		this.viewSection.classList.remove("hidden");
+	
+		// Remove the editor from the DOM if it exists
+		const existingEditor = this.viewSectionVictualEditor;
+		if (existingEditor) {
+			existingEditor.remove();  // This will remove the editor from the DOM
+		}
+	}
+	
+
 }
-
-
 /*
  * Registers an event listener for the browser window's load event.
  */
