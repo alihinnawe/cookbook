@@ -20,9 +20,12 @@ class VictualEditorTabController extends TabController {
 	// HTML element getter operations
 	get viewSection () { return this.center.querySelector("section.victuals-view"); }
 	get viewSectionVictualEditor () { return this.center.querySelector("section.victual-editor"); }
-
 	get victualsTableBody () { return this.viewSection.querySelector("div.victuals>table>tbody"); }
 	get controlDivision () { return this.viewSection.querySelector("div.control"); }
+	get victualDiet () { return this.viewSectionVictualEditor.querySelector("div.data>div.diet>select"); }
+    get victualAlias () { return this.viewSectionVictualEditor.querySelector("div.data>div.alias>input"); }
+	get victualDescription () { return this.viewSectionVictualEditor.querySelector("div.data>div.description>textarea"); }
+
 
 	/**
 	 * Handles that activity has changed from false to true.
@@ -64,18 +67,19 @@ class VictualEditorTabController extends TabController {
 			const rowDiet = tableRow.querySelector("td.diet");
 			const dateAlias = tableRow.querySelector("td.modified.number");
 			const button = tableRow.querySelector("td.access>button");
-	
+			
 			avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
 			rowAlias.textContent = victual.alias || "";
 			rowDiet.textContent = DIET[victual.diet] || "";
-	
 			const timestamp = victual.modified;
 			const event = new Date(timestamp);
-		
 			dateAlias.textContent = event.toLocaleDateString();
 			this.victualsTableBody.append(tableRow);
 
 			button.addEventListener("click", event => this.#processDisplayVictualEditor(victual));
+			console.log("save the updated victual to the database");
+			
+
 			
 		}
 	}
@@ -96,6 +100,8 @@ class VictualEditorTabController extends TabController {
 
 
 	async #processDisplayVictualEditor(victual = {}) {
+		// should i create a victual clone here or in the processSaveVictualEditor?
+
 		this.viewSection.classList.add("hidden");
 		const template = document.querySelector("head>template.victual-editor");
 		const tableRow = template.content.firstElementChild.cloneNode(true);
@@ -114,12 +120,11 @@ class VictualEditorTabController extends TabController {
 		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
 		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
 		tableRow.querySelector("div.data>div.description>textarea").value = victual.description;
-	
+		tableRow.querySelector("div.control>button.submit").addEventListener("click", event => this.#processSaveVictualEditor(victual));
+		//tableRow.querySelector("div.data>div.avatar>button").src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
 		console.log("success");
 	}
 	
-
-
 
 	async processSubmitVictualAvatar(victual, avatarFile) {
 		try {
@@ -132,17 +137,61 @@ class VictualEditorTabController extends TabController {
 			victual.avatar.identity = await this.#invokeInsertOrUpdateDocument(avatarFile);
 			const avatarViewer1 = this.viewSectionVictualEditor.querySelector("div.data>div.avatar>button>img");
 			// Update the image source after the avatar has been successfully uploaded
+			console.log("victual Avatr Identity",victual.avatar.identity);
 			avatarViewer1.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
-			//this.#processDisplayVictualEditor(victual);  // Refresh the editor with the updated avatar identity
 			this.messageOutput.value = "Avatar updated successfully.";
 		} catch (error) {
 			this.messageOutput.value = error.message;
 			console.error(error);
 		}
 	}
-	
-	
 
+
+	async #processSaveVictualEditor(victual){
+
+
+		try {
+			const victualClone =  structuredClone(victual);
+			//console.log("victualClone",victualClone);
+			victualClone.avatar = victual.avatar || { identity: 1 };
+			console.log("victual.avatar identity check", victualClone.avatar,victual.avatar);
+			//victualClone.avatar.identity = this.viewSectionVictualEditor.querySelector("div.data>div.avatar>button>img").value || "";
+			victualClone.diet = this.victualDiet.value || "";
+			victualClone.alias = this.victualAlias.value || "";
+			victualClone.description = this.victualDescription.value || "";
+
+			console.log("new victual avatar",victualClone);
+
+			
+			await this.#invokeInsertOrUpdateVictual(victualClone);
+
+			
+			for (const key in victualClone)
+				victual[key] = victualClone[key];
+			victual.version +=1;	
+
+			this.messageOutput.value = "ok";
+		} catch (error) {
+			//this.displayPersonDetails(sessionOwner);
+			this.messageOutput.value = error.message;
+			console.error(error);
+		}
+	}
+
+	async #invokeInsertOrUpdateVictual (victualOwnerClone) {
+		const body = JSON.stringify(victualOwnerClone);
+		console.log("bodyyyyyyyyyyyyyyyyyy",body);
+		const resource = sessionOwner.group === "ADMIN"
+		? this.sharedProperties["service-origin"] + "/services/victuals"
+		: this.sharedProperties["service-origin"] + "/services/people/" + victualOwnerClone.identity + "/victuals";
+		const headers = { "Accept": "text/plain", "Content-Type": "application/json" };
+		const response = await fetch(resource, { method: "POST", headers: headers, body: body, credentials: "include" });
+		console.log("response",response);
+		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
+
+		return window.parseInt(await response.text());
+	}
+	
 
 	async #invokeInsertOrUpdateDocument (file) {
 		const resource = this.sharedProperties["service-origin"] + "/services/documents";
