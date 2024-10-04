@@ -19,10 +19,11 @@ class VictualEditorTabController extends TabController {
 
 	// HTML element getter operations
 	get viewSection () { return this.center.querySelector("section.victuals-view"); }
+	get viewSectionVictualEditor () { return this.center.querySelector("section.victual-editor"); }
+
 	get victualsTableBody () { return this.viewSection.querySelector("div.victuals>table>tbody"); }
 	get controlDivision () { return this.viewSection.querySelector("div.control"); }
-	get avatarButton () { return this.viewSection.querySelector("div.data>div.avatar>button"); }
-	get avatarViewer () { return this.avatarButton.querySelector("img"); }
+
 	/**
 	 * Handles that activity has changed from false to true.
 	 */
@@ -95,33 +96,45 @@ class VictualEditorTabController extends TabController {
 
 
 	async #processDisplayVictualEditor(victual = {}) {
-		//console.log("victual",victual);
 		this.viewSection.classList.add("hidden");
 		const template = document.querySelector("head>template.victual-editor");
 		const tableRow = template.content.firstElementChild.cloneNode(true);
 		this.center.append(tableRow);
+	
 		const avatarElement = tableRow.querySelector("div.data>div.avatar>button>img");
-		avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
-		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
-		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
-		tableRow.querySelector("div.data>div.description>textarea").value = victual.description;
 		avatarElement.addEventListener("dragover", event => this.#avatarAnrufenDrag(event.dataTransfer));
 		avatarElement.addEventListener("drop", event => this.processSubmitVictualAvatar(victual, event.dataTransfer.files[0]));
 	
+		// Set the image src after the avatar identity is available
+		if (victual.avatar && victual.avatar.identity) {
+			avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+		}
+	
+		// Populate other fields
+		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
+		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
+		tableRow.querySelector("div.data>div.description>textarea").value = victual.description;
+	
+		console.log("success");
 	}
+	
 
 
 
-	async processSubmitVictualAvatar (victual, avatarFile) {		
+	async processSubmitVictualAvatar(victual, avatarFile) {
 		try {
 			if (!avatarFile.type.startsWith("image/")) {
-            	throw new Error("Invalid file type. Only image files are allowed.");
+				throw new Error("Invalid file type. Only image files are allowed.");
 			}
-			if (!victual.avatar) victual.avatar = {identity:1};
+	
+			// Upload the image and get the new identity
+			victual.avatar = victual.avatar || { identity: 1 };
 			victual.avatar.identity = await this.#invokeInsertOrUpdateDocument(avatarFile);
-			this.avatarViewer.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
-
-			this.messageOutput.value = "ok.";
+			const avatarViewer1 = this.viewSectionVictualEditor.querySelector("div.data>div.avatar>button>img");
+			// Update the image source after the avatar has been successfully uploaded
+			avatarViewer1.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+			//this.#processDisplayVictualEditor(victual);  // Refresh the editor with the updated avatar identity
+			this.messageOutput.value = "Avatar updated successfully.";
 		} catch (error) {
 			this.messageOutput.value = error.message;
 			console.error(error);
@@ -129,17 +142,6 @@ class VictualEditorTabController extends TabController {
 	}
 	
 	
-	async #invokeInsertOrUpdateVictual (victual) {
-		const body = JSON.stringify(victual);
-		const resource = this.sharedProperties["service-origin"] + "/services/victuals";
-		const headers = { "Accept": "text/plain", "Content-Type": "application/json" };
-		if (password) headers["X-Set-Password"] = password;
-		const response = await fetch(resource, { method: "POST", headers: headers, body: body, credentials: "include" });
-		//console.log("response",response);
-		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
-
-		return window.parseInt(await response.text());
-	}
 
 
 	async #invokeInsertOrUpdateDocument (file) {
@@ -147,7 +149,7 @@ class VictualEditorTabController extends TabController {
 		const headers = { "Accept": "text/plain", "Content-Type": file.type, "X-Content-Description": file.name };
 		const response = await fetch(resource, { method: "POST" , headers: headers, body: file, credentials: "include" });
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
-
+		console.log("copied to database");
 		return window.parseInt(await response.text());
 	}
 	
