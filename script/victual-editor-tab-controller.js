@@ -96,18 +96,13 @@ class VictualEditorTabController extends TabController {
 		const response = await fetch(resource, { method: "GET", headers: headers, credentials: "include" });
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
 		const victuals = await response.json();
-		// redefine center content
+
 		return victuals;
 	}
 
 	async #processDisplayVictualEditor(victual = {}) {
-		// Clear out the existing editor, if any, to avoid appending multiple times
-		const existingEditor = this.viewSectionVictualEditor;
-		if (existingEditor) {
-			existingEditor.remove();  // Remove existing editor before adding new one
-		}
-	
-		// Hide the view section and prepare to display the editor
+
+
 		this.viewSection.classList.add("hidden");
 	
 		// Insert new editor section
@@ -115,7 +110,6 @@ class VictualEditorTabController extends TabController {
 		const tableRow = template.content.firstElementChild.cloneNode(true);
 		this.center.append(tableRow);
 	
-		// Setup event listeners and fill data in the editor
 		const avatarElement = tableRow.querySelector("div.data>div.avatar>button>img");
 		avatarElement.addEventListener("dragover", event => this.#avatarAnrufenDrag(event.dataTransfer));
 		avatarElement.addEventListener("drop", event => this.processSubmitVictualAvatar(victual, event.dataTransfer.files[0]));
@@ -128,10 +122,11 @@ class VictualEditorTabController extends TabController {
 	
 		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
 		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
-		tableRow.querySelector("div.data>div.description>textarea").value = victual.description;
+		tableRow.querySelector("div.data>div.description>textarea").value = victual.description || "";
 	
 		tableRow.querySelector("div.control>button.submit").addEventListener("click", event => this.#processSaveVictualEditor(victual));
-	
+		tableRow.querySelector("div.control>button.delete").addEventListener("click", event => this.#processDeleteVictualEditor(victual));
+
 		console.log("Editor displayed successfully.");
 	}
 	
@@ -156,47 +151,45 @@ class VictualEditorTabController extends TabController {
 		}
 	}
 
-
 	async #processSaveVictualEditor(victual){
-
-
+		const sessionOwner = this.sharedProperties["session-owner"];
+	
 		try {
-			const victualClone =  structuredClone(victual);
-			//console.log("victualClone",victualClone);
-			victualClone.avatar = victual.avatar || { identity: 1 };
-			console.log("victual.avatar identity check", victualClone.avatar,victual.avatar);
-			//victualClone.avatar.identity = this.viewSectionVictualEditor.querySelector("div.data>div.avatar>button>img").value || "";
-			victualClone.diet = this.victualDiet.value || "";
-			victualClone.alias = this.victualAlias.value || "";
-			victualClone.description = this.victualDescription.value || "";
-
-			console.log("new victual avatar",victualClone);
-
+			// If avatar already exists, keep it; otherwise, wait for upload process
+			if (!victual.avatar || !victual.avatar.identity) {
+				// You can leave the avatar empty or set it only when necessary
+				victual.avatar = { identity: null };
+			}
+	
+			const avatarViewer2 = this.viewSectionVictualEditor.querySelector("div.data>div.avatar>button>img");
+	
+			// If avatar identity exists, set the image src
+			if (victual.avatar.identity) {
+				avatarViewer2.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+			} else {
+				avatarViewer2.src = "";  // Clear the image or use a placeholder if no avatar is present
+			}
+	
+			// Proceed with the rest of the save operation
+			victual.diet = this.victualDiet.value || null;
+			victual.alias = this.victualAlias.value || null;
+			victual.description = this.victualDescription.value || null;
+	
+			// Call to save the victual data
+			victual.identity = await this.#invokeInsertOrUpdateVictual(victual);
+			victual.version = (victual.version || 0) + 1;
 			
-			await this.#invokeInsertOrUpdateVictual(victualClone);
-
-			
-			for (const key in victualClone)
-				victual[key] = victualClone[key];
-			victual.version +=1;	
-
-			// Return to the victuals list after saving
-			this.#processReturnToVictual();
-
-			this.messageOutput.value = "ok";
+			this.messageOutput.value = "Victual saved successfully";
 		} catch (error) {
-			//this.displayPersonDetails(sessionOwner);
 			this.messageOutput.value = error.message;
-			console.error(error);
+			console.error("Error saving victual:", error);
 		}
 	}
-
+	
 	async #invokeInsertOrUpdateVictual (victualOwnerClone) {
 		const body = JSON.stringify(victualOwnerClone);
 		console.log("bodyyyyyyyyyyyyyyyyyy",body);
-		const resource = sessionOwner.group === "ADMIN"
-		? this.sharedProperties["service-origin"] + "/services/victuals"
-		: this.sharedProperties["service-origin"] + "/services/people/" + victualOwnerClone.identity + "/victuals";
+		const resource = this.sharedProperties["service-origin"] + "/services/victuals";
 		const headers = { "Accept": "text/plain", "Content-Type": "application/json" };
 		const response = await fetch(resource, { method: "POST", headers: headers, body: body, credentials: "include" });
 		console.log("response",response);
@@ -222,14 +215,50 @@ class VictualEditorTabController extends TabController {
 	}
 
 	async #processReturnToVictual() {
+
 		// Show the victuals view section
 		this.viewSection.classList.remove("hidden");
+		this.viewSectionVictualEditor.remove();
+		this.refreshVictualsList();
+	}
+
+
+	async #processDeleteVictualEditor(victual) {
+
+		try {
+
+			const resource = this.sharedProperties["service-origin"] + "/services/victuals/" + victual.identity;
+			const response = await fetch(resource, { method: "DELETE", credentials: "include" });
 	
-		// Remove the editor from the DOM if it exists
-		const existingEditor = this.viewSectionVictualEditor;
-		if (existingEditor) {
-			existingEditor.remove();  // This will remove the editor from the DOM
+			if (!response.ok) {
+				throw new Error("Failed to delete victual: HTTP " + response.status + " " + response.statusText);
+			}
+	
+			await this.refreshVictualsList();
+			this.viewSectionVictualEditor.classList.add("hidden");
+
+			//return to the victuals list
+			//this.#processReturnToVictual();
+
+			// Refresh the victuals list after successful deletion
+
+			this.messageOutput.value = "Victual deleted successfully.";
+	
+			console.log("Victual " + victual.identity + " deleted successfully.");
+		} catch (error) {
+			this.messageOutput.value = error.message;
+			console.error("Error deleting victual:", error);
 		}
+	}
+	
+	async refreshVictualsList() {
+		const sessionOwner = this.sharedProperties["session-owner"];
+		// Clear the existing table rows
+		this.victualsTableBody.innerHTML = '';  
+		// Fetch and display editable victuals
+		await this.displayEditableVictuals(sessionOwner);
+
+
 	}
 	
 
