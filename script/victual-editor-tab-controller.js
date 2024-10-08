@@ -101,8 +101,7 @@ class VictualEditorTabController extends TabController {
 	}
 
 	async #processDisplayVictualEditor(victual = {}) {
-
-
+		// Hide the victuals view and show the editor
 		this.viewSection.classList.add("hidden");
 	
 		// Insert new editor section
@@ -110,25 +109,42 @@ class VictualEditorTabController extends TabController {
 		const tableRow = template.content.firstElementChild.cloneNode(true);
 		this.center.append(tableRow);
 	
+		// Avatar handling
 		const avatarElement = tableRow.querySelector("div.data>div.avatar>button>img");
 		avatarElement.addEventListener("dragover", event => this.#avatarAnrufenDrag(event.dataTransfer));
 		avatarElement.addEventListener("drop", event => this.processSubmitVictualAvatar(victual, event.dataTransfer.files[0]));
 	
-		tableRow.querySelector("div.control>button.cancel").addEventListener("click", event => this.#processReturnToVictual());
-	
+		// Set a default avatar if none is available
 		if (victual.avatar && victual.avatar.identity) {
 			avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+			console.log("avatarElement.srcavatarElement.srcavatarElement.srcavatarElement.src",avatarElement.src);
+		} else {
+			// Set a default avatar image
+			avatarElement.src = this.sharedProperties["service-origin"] + "/services/documents/" + 1; 
 		}
 	
-		tableRow.querySelector("div.data>div.diet>select").value = victual.diet || "";
-		tableRow.querySelector("div.data>div.alias>input").value = victual.alias || "";
-		tableRow.querySelector("div.data>div.description>textarea").value = victual.description || "";
+		// Set up cancel button
+		tableRow.querySelector("div.control>button.cancel").addEventListener("click", event => this.#processReturnToVictual());
 	
+		// Set default value for the dropdown (select) and textarea
+		const dietSelect = tableRow.querySelector("div.data>div.diet>select");
+		const aliasInput = tableRow.querySelector("div.data>div.alias>input");
+		const descriptionTextarea = tableRow.querySelector("div.data>div.description>textarea");
+	
+		// Set a default diet value to 'VEGAN' (assuming it's part of your DIET enum)
+		dietSelect.value = victual.diet;
+	
+		// Set a default alias and description if none exist
+		aliasInput.value = victual.alias || "";
+		descriptionTextarea.value = victual.description || "Enter a description here...";
+	
+		// Register event listeners for the submit and delete buttons
 		tableRow.querySelector("div.control>button.submit").addEventListener("click", event => this.#processSaveVictualEditor(victual));
 		tableRow.querySelector("div.control>button.delete").addEventListener("click", event => this.#processDeleteVictualEditor(victual));
-
+	
 		console.log("Editor displayed successfully.");
 	}
+	
 	
 
 	async processSubmitVictualAvatar(victual, avatarFile) {
@@ -151,41 +167,37 @@ class VictualEditorTabController extends TabController {
 		}
 	}
 
+
 	async #processSaveVictualEditor(victual){
-		const sessionOwner = this.sharedProperties["session-owner"];
-	
+		const sessionOwner = this.sharedProperties["session-owner"] ;
+
 		try {
-			// If avatar already exists, keep it; otherwise, wait for upload process
-			if (!victual.avatar || !victual.avatar.identity) {
-				// You can leave the avatar empty or set it only when necessary
-				victual.avatar = { identity: null };
-			}
-	
+
+			victual.avatar = victual.avatar || { identity: 1 };
 			const avatarViewer2 = this.viewSectionVictualEditor.querySelector("div.data>div.avatar>button>img");
-	
-			// If avatar identity exists, set the image src
-			if (victual.avatar.identity) {
-				avatarViewer2.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
-			} else {
-				avatarViewer2.src = "";  // Clear the image or use a placeholder if no avatar is present
-			}
-	
-			// Proceed with the rest of the save operation
+
+			avatarViewer2.src = this.sharedProperties["service-origin"] + "/services/documents/" + victual.avatar.identity;
+
+			console.log("new victual avatar", victual.avatar );
+
 			victual.diet = this.victualDiet.value || null;
 			victual.alias = this.victualAlias.value || null;
 			victual.description = this.victualDescription.value || null;
-	
-			// Call to save the victual data
+
+			console.log("new victual avatar",victual);
+
 			victual.identity = await this.#invokeInsertOrUpdateVictual(victual);
 			victual.version = (victual.version || 0) + 1;
-			
-			this.messageOutput.value = "Victual saved successfully";
+			console.log("victual ", victual);	
+
+			this.messageOutput.value = "ok";
 		} catch (error) {
+			//this.displayPersonDetails(sessionOwner);
 			this.messageOutput.value = error.message;
-			console.error("Error saving victual:", error);
+			console.error(error);
 		}
 	}
-	
+
 	async #invokeInsertOrUpdateVictual (victualOwnerClone) {
 		const body = JSON.stringify(victualOwnerClone);
 		console.log("bodyyyyyyyyyyyyyyyyyy",body);
