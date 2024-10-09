@@ -1,4 +1,5 @@
 import TabController from "../../../tool/tab-controller.js";
+import {DIET,CATEGORY} from "./enums.js"
 
 
 /**
@@ -85,19 +86,12 @@ class RecipeViewTabController extends TabController {
 				
 				buttonImage.src = this.sharedProperties["service-origin"] + "/services/documents/" + recipe.avatar.identity;
 				title.innerText = recipe.title || "";
-				diet.innerText = recipe.diet || "";
-				category.innerText = recipe.category || "";
+				diet.innerText = DIET[recipe.diet] || "";
+				category.innerText = CATEGORY[recipe.category] || "";
 				ingredient.innerText = recipe.ingredientCount.toString();
 				modified.innerText = new Date(recipe.modified).toLocaleDateString();
 				console.log("table rowww view ",tableRow);
 				recipesTable.append(tableRow);
-				// this.queryTitel.value =  recipe.title || "";
-				// this.queryDescription.value = recipe.description || "";
-				// this.queryIngredientCount.value = parseInt(recipe.ingredientCount || "0");
-				// this.queryInstruction.value = recipe.instruction || null;
-				// this.queryDiets.value = Array.from(recipe.selectedOptions).map(option => option.value);
-				// this.queryAuthorship.value = recipe.authorReference || null;
-				// this.category.value = recipe.category  || null;
 			};
 			
 			// remember to parse authored to the webservice call; NOT authorship.
@@ -115,6 +109,7 @@ class RecipeViewTabController extends TabController {
 		if (description) queryFactory.set("description-fragment", description);
 		if (instruction) queryFactory.set("instruction-fragment", instruction);
 		queryFactory.set("min-ingredient-count", ingredientCount);
+		if (category) queryFactory.set("category", category);
 		console.log("queryFactory",queryFactory.toString());
 
 		const resource = this.sharedProperties["service-origin"] + "/services/recipes?" + queryFactory.toString();
