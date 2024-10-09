@@ -22,11 +22,11 @@ class RecipeViewTabController extends TabController {
 	get querySection () { return this.center.querySelector("section.recipes-query"); }
 	get recipesView () { return this.center.querySelector("section.recipes-view"); }
 
-	get queryTitel() { return this.querySection.querySelector("div.criteria>span.left>div.title")}
-	get queryDescription() { return this.querySection.querySelector("div.criteria>span.left>div.description")}
-	get queryInstruction() { return this.querySection.querySelector("div.criteria>span.left>div.instruction")}
-	get queryIngredientCount() { return this.querySection.querySelector("div.criteria>span.left>div.min-ingredient-count")}
-	get category() { return this.querySection.querySelector("div.criteria>span.left>div.category")}
+	get queryTitelInput() { return this.querySection.querySelector("div.criteria>span.left>div.title>input")}
+	get queryDescription() { return this.querySection.querySelector("div.criteria>span.left>div.description>input")}
+	get queryInstruction() { return this.querySection.querySelector("div.criteria>span.left>div.instruction>input")}
+	get queryIngredientCount() { return this.querySection.querySelector("div.criteria>span.left>div.min-ingredient-count>input")}
+	get categorySelector() { return this.querySection.querySelector("div.criteria>span.left>div.category>select")}
 	get queryDiets() { return this.querySection.querySelector("div.criteria>span.right>div.diets>select")}
 	get queryAuthorship() { return this.querySection.querySelector("div.criteria>span.right>div.authorship>select")}
 
@@ -53,44 +53,78 @@ class RecipeViewTabController extends TabController {
 		this.messageOutput.value = "";
 
 		try {
-
 			const template = document.querySelector("head>template.recipes-view");
 			this.center.append(template.content.firstElementChild.cloneNode(true));
-			const title = this.queryTitel.value || "";
-			const description = this.queryDescription || "";
-			const ingredientCount = window.parseInt(this.queryIngredientCount || "0");
-			const instruction = this.queryInstruction || null;
+
+			const title = this.queryTitelInput.value.trim() || null;
+			const description = this.queryDescription.value.trim() || null;
+			const ingredientCount = window.parseInt(this.queryIngredientCount.value || "0");
+			const instruction = this.queryInstruction.value.trim() || null;
 			const diets = Array.from(this.queryDiets.selectedOptions).map(option => option.value);
-			const authorship = this.queryAuthorship.value || null;
+			const authorship = this.queryAuthorship.value.trim() || null;
 			const authored = authorship === null ? null : authorship === "HAS_AUTHOR";
+			const category = this.categorySelector.value.trim() || null;
+
+			const recipes = await this.#invokeQueryAllRecipes(title, description, instruction, ingredientCount, category, diets, authored);
+			console.log("recipes:",recipes);
+
+			const template1 = document.querySelector("head>template.recipes-view-row");
+			const recipesTable = this.recipesView.querySelector("table>tbody");
+			recipesTable.innerHTML = "";
+
+			for (const recipe of recipes) {
+				this.messageOutput.value = "";
+				const tableRow = template1.content.firstElementChild.cloneNode(true);
+				// Find elements in the current cloned row
+				const buttonImage = tableRow.querySelector("td.access>button>img");
+				const title = tableRow.querySelector("td.title");
+				const diet = tableRow.querySelector("td.diet");
+				const category = tableRow.querySelector("td.category");
+				const ingredient = tableRow.querySelector("td.ingredient-count");
+				const modified = tableRow.querySelector("td.modified");
+				
+				buttonImage.src = this.sharedProperties["service-origin"] + "/services/documents/" + recipe.avatar.identity;
+				title.innerText = recipe.title || "";
+				diet.innerText = recipe.diet || "";
+				category.innerText = recipe.category || "";
+				ingredient.innerText = recipe.ingredientCount.toString();
+				modified.innerText = new Date(recipe.modified).toLocaleDateString();
+				console.log("table rowww view ",tableRow);
+				recipesTable.append(tableRow);
+				// this.queryTitel.value =  recipe.title || "";
+				// this.queryDescription.value = recipe.description || "";
+				// this.queryIngredientCount.value = parseInt(recipe.ingredientCount || "0");
+				// this.queryInstruction.value = recipe.instruction || null;
+				// this.queryDiets.value = Array.from(recipe.selectedOptions).map(option => option.value);
+				// this.queryAuthorship.value = recipe.authorReference || null;
+				// this.category.value = recipe.category  || null;
+			};
 			
-			const recipes = await this.#invokeQueryAllRecipes();
-			console.log("recipes", recipes);
-
-			recipes.forEach(recipe => {
-
-			this.queryTitel.value =  recipe.title || "";
-			this.queryDescription.value = recipe.description || "";
-			this.queryIngredientCount.value = parseInt(recipe.ingredientCount || "0");
-			this.queryInstruction.value = recipe.instruction || null;
-			this.queryDiets.value = Array.from(recipe.selectedOptions).map(option => option.value);
-			this.queryAuthorship.value = recipe.authorReference || null;
-			this.category.value = recipe.category  || null;
-			});
 			// remember to parse authored to the webservice call; NOT authorship.
 		} catch (error) {
 			console.error(error);
-			messageOutput.value = error.message || "something went wrong!";
+			this.messageOutput.value = error.message || "something went wrong!";
 		}
 	}
 
-	async #invokeQueryAllRecipes() {
-		const resource = this.sharedProperties["service-origin"] + "/services/recipes";
+	async #invokeQueryAllRecipes (title, description, instruction, ingredientCount, category, diets, authored) {
+		const queryFactory = new URLSearchParams();
+		for (const diet of diets) queryFactory.append("diet", diet); 
+		if (authored != null) queryFactory.set("authored", authored);
+		if (title) queryFactory.set("title-fragment", title);
+		if (description) queryFactory.set("description-fragment", description);
+		if (instruction) queryFactory.set("instruction-fragment", instruction);
+		queryFactory.set("min-ingredient-count", ingredientCount);
+		console.log("queryFactory",queryFactory.toString());
+
+		const resource = this.sharedProperties["service-origin"] + "/services/recipes?" + queryFactory.toString();
 		const headers = { "Accept": "application/json" };
+
 		const response = await fetch(resource, { method: "GET" , headers: headers, credentials: "include" });
 		if (!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
 		return response.json();
 	}
+
 }
 
 
