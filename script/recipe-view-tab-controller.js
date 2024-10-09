@@ -22,7 +22,6 @@ class RecipeViewTabController extends TabController {
 	// HTML element getter operations
 	get querySection () { return this.center.querySelector("section.recipes-query"); }
 	get recipesView () { return this.center.querySelector("section.recipes-view"); }
-
 	get queryTitelInput() { return this.querySection.querySelector("div.criteria>span.left>div.title>input")}
 	get queryDescription() { return this.querySection.querySelector("div.criteria>span.left>div.description>input")}
 	get queryInstruction() { return this.querySection.querySelector("div.criteria>span.left>div.instruction>input")}
@@ -92,6 +91,8 @@ class RecipeViewTabController extends TabController {
 				modified.innerText = new Date(recipe.modified).toLocaleDateString();
 				console.log("table rowww view ",tableRow);
 				recipesTable.append(tableRow);
+
+				buttonImage.addEventListener("click", event =>  this.processDisplayIngredientEditor(recipe))
 			};
 			
 			// remember to parse authored to the webservice call; NOT authorship.
@@ -120,6 +121,10 @@ class RecipeViewTabController extends TabController {
 		return response.json();
 	}
 
+	async processDisplayIngredientEditor (recipe) {
+		console.log("test1",recipe);
+
+	}
 }
 
 
